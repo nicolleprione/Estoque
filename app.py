@@ -11,6 +11,10 @@ if 'codigo_selecionado' not in st.session_state:
 if 'codigo_confirmado' not in st.session_state:
     st.session_state.codigo_confirmado = False
 
+# Estado de conferências
+if 'conferencias' not in st.session_state:
+    st.session_state.conferencias = {}
+
 # Título
 st.markdown("""
 # Bem-Vindo(a) ao Estoque
@@ -70,3 +74,14 @@ if importar_arquivo:
             else:
                 st.session_state.codigo_confirmado = False
                 st.error('Código incorreto.')
+
+        # Conferencia
+        if st.session_state.codigo_confirmado:
+            st.subheader('Dados de conferência')
+            conferente = st.selectbox('Usuário', ['Ana Clara', 'André'])
+
+            contagem = st.number_input('Quantidade física', min_value=0, step=1)
+
+            if st.button('Salvar'):
+                st.session_state.conferencias[codigo] = {'conferente':conferente, 'contagem': contagem}
+                st.success('Salvo com Sucesso.')
