@@ -16,9 +16,7 @@ if 'conferencias' not in st.session_state:
     st.session_state.conferencias = {}
 
 # Título
-st.markdown("""
-# Bem-Vindo(a) ao Estoque
-""")
+st.header("Bem-Vindo(a) ao Estoque")
 
 # Importação dos dados
 importar_arquivo = st.file_uploader(label='Importar', type=['xlsx'])
@@ -42,16 +40,31 @@ if importar_arquivo:
 
     st.subheader('Lista de Conferência')
 
+    # Separação de itens não conferidos
+    itens_pendentes = df_limpo[~df_limpo['Códg Mestre'].isin(st.session_state.conferencias)]
+
+    # Separação itens conferidos
+    itens_conferidos = df_limpo[df_limpo['Códg Mestre'].isin(st.session_state.conferencias)]
+
+    #Primeiro os pendentes
+    itens_ordenados = pd.concat([itens_pendentes, itens_conferidos])
+
     # Seleção de itens
-    for _, item in df_limpo.iterrows():
+    for _, item in itens_ordenados.iterrows():
+
         codigo = item['Códg Mestre']
         descricao = item['Descrição']
         locacao = item['Locações']
-        st.write(f'{codigo} - {descricao}')
 
-        if st.button('Conferir', key=codigo):
-            st.session_state.codigo_selecionado = codigo
-            st.session_state.codigo_confirmado = False
+        if codigo in st.session_state.conferencias:
+            st.success(f'✓ {codigo} - {descricao}')
+
+        else:
+            st.write(f'{codigo} - {descricao}')
+
+            if st.button('Conferir', key=codigo):
+                st.session_state.codigo_selecionado = codigo
+                st.session_state.codigo_confirmado = False
 
         st.divider() # linha separadora
 
@@ -84,4 +97,8 @@ if importar_arquivo:
 
             if st.button('Salvar'):
                 st.session_state.conferencias[codigo] = {'conferente':conferente, 'contagem': contagem}
+
+                st.session_state.codigo_selecionado = None
+                st.session_state.codigo_confirmado = False
+
                 st.success('Salvo com Sucesso.')
