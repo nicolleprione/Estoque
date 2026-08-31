@@ -3,9 +3,13 @@ import pandas as pd
 
 st.set_page_config(page_title='Estoque')
 
-# Teste e criação da variável do código selecionado
+# Estado do código selecionado
 if 'codigo_selecionado' not in st.session_state:
     st.session_state.codigo_selecionado = None
+
+# Estado da confirmação
+if 'codigo_confirmado' not in st.session_state:
+    st.session_state.codigo_confirmado = False
 
 # Título
 st.markdown("""
@@ -43,6 +47,7 @@ if importar_arquivo:
 
         if st.button('Conferir', key=codigo):
             st.session_state.codigo_selecionado = codigo
+            st.session_state.codigo_confirmado = False
 
         st.divider() # linha separadora
 
@@ -55,3 +60,13 @@ if importar_arquivo:
         st.write(f"Código: {item['Códg Mestre']}")
         st.write(f"Descrição: {item['Descrição']}")
         st.write(f"Locação: {item['Locações']}")
+
+        # Confirmação do Item
+        st.subheader('Confirmação do código')
+        codigo_digitado = st.text_input('Digite o código: ')
+        if st.button('Confirmar código'):
+            if codigo_digitado == codigo:
+                st.session_state.codigo_confirmado = True
+            else:
+                st.session_state.codigo_confirmado = False
+                st.error('Código incorreto.')
