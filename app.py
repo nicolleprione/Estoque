@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 
-st.set_page_config(page_title='Estoquito')
+st.set_page_config(page_title='Estoque')
 
 # Teste e criação da variável do código selecionado
 if 'codigo_selecionado' not in st.session_state:
@@ -9,7 +9,7 @@ if 'codigo_selecionado' not in st.session_state:
 
 # Título
 st.markdown("""
-# Bem-Vindo(a) ao Estoquito
+# Bem-Vindo(a) ao Estoque
 """)
 
 # Importação dos dados
