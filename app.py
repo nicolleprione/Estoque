@@ -15,6 +15,10 @@ if 'codigo_confirmado' not in st.session_state:
 if 'conferencias' not in st.session_state:
     st.session_state.conferencias = {}
 
+# Estado de edição
+if 'modo_edicao' not in st.session_state:
+    st.session_state.modo_edicao = False
+
 # Título
 st.header("Bem-Vindo(a) ao Omnis!")
 
@@ -57,12 +61,18 @@ if importar_arquivo:
         if codigo in st.session_state.conferencias:
             st.success(f'✓ {codigo} - {descricao}')
 
+            if st.button('Editar', key=f'editar_{codigo}'):
+                st.session_state.codigo_selecionado = codigo
+                st.session_state.codigo_confirmado = True
+                st.session_state.modo_edicao = True
+
         else:
             st.write(f'{codigo} - {descricao}')
 
             if st.button('Conferir', key=codigo):
                 st.session_state.codigo_selecionado = codigo
                 st.session_state.codigo_confirmado = False
+                st.session_state.modo_edicao = False
 
         st.divider() # linha separadora
 
@@ -77,26 +87,41 @@ if importar_arquivo:
         st.write(f"Locação: {item['Locações']}")
 
         # Confirmação do Item
-        st.subheader('Confirmação do código')
-        codigo_digitado = st.text_input('Digite o código: ')
-        if st.button('Confirmar código'):
-            if codigo_digitado == codigo:
-                st.session_state.codigo_confirmado = True
-            else:
-                st.session_state.codigo_confirmado = False
-                st.error('Código incorreto.')
+        if not st.session_state.modo_edicao:
+            st.subheader('Confirmação do código')
+            codigo_digitado = st.text_input('Digite o código: ')
+
+            if st.button('Confirmar código'):
+                if codigo_digitado == codigo:
+                    st.session_state.codigo_confirmado = True
+                else:
+                    st.session_state.codigo_confirmado = False
+                    st.error('Código incorreto.')
 
         # Conferencia
         if st.session_state.codigo_confirmado:
             st.subheader('Dados de conferência')
-            conferente = st.selectbox('Usuário', ['Ana Clara', 'André'])
 
-            contagem = st.number_input('Quantidade física', min_value=0, step=1)
+            conferencia_existente = st.session_state.conferencias.get(codigo)
+            if conferencia_existente:
+                conferencia_inicial = conferencia_existente['conferente']
+                contagem_inicial = conferencia_existente['contagem']
+            else:
+                conferencia_inicial = 'Selecione'
+                contagem_inicial = 0
+
+            funcionarios = ['Ana Clara', 'André']
+            indice_conferente = funcionarios.index(conferencia_inicial)
+
+            conferente = st.selectbox('Usuário', funcionarios, index=indice_conferente)
+
+            contagem = st.number_input('Quantidade física', min_value=0, step=1, value=int(contagem_inicial))
 
             if st.button('Salvar'):
                 st.session_state.conferencias[codigo] = {'conferente':conferente, 'contagem': contagem}
 
                 st.session_state.codigo_selecionado = None
                 st.session_state.codigo_confirmado = False
+                st.session_state.modo_edicao = False
 
                 st.success('Salvo com Sucesso.')
