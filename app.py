@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 
-st.set_page_config(page_title='Estoque')
+st.set_page_config(page_title='Omnis')
 
 # Estado do código selecionado
 if 'codigo_selecionado' not in st.session_state:
@@ -16,10 +16,10 @@ if 'conferencias' not in st.session_state:
     st.session_state.conferencias = {}
 
 # Título
-st.header("Bem-Vindo(a) ao Estoque")
+st.header("Bem-Vindo(a) ao Omnis!")
 
 # Importação dos dados
-importar_arquivo = st.file_uploader(label='Importar', type=['xlsx'])
+importar_arquivo = st.file_uploader(label='Importe',type=['xlsx'])
 
 # Verifica se foi importado algo
 if importar_arquivo:
@@ -33,10 +33,8 @@ if importar_arquivo:
     # Informações da planilha
     total_original = len(df)
     total_unicos = len(df_limpo)
-    duplicados = total_original - total_unicos
-    st.write(f"Total de registros: {total_original}")
-    st.write(f"Códigos únicos: {total_unicos}")
-    st.write(f"Duplicados: {duplicados}")
+    st.text(f"Total de registros: {total_original}")
+    st.text(f"Códigos únicos: {total_unicos}")
 
     st.subheader('Lista de Conferência')
 
