@@ -1,10 +1,14 @@
+# Importações
 import streamlit as st
 import pandas as pd
 from datetime import datetime
-from io import BytesIO
+import funcoes
 
+# Configurações
 st.set_page_config(page_title='Omnis')
+st.header("Bem-Vindo(a) ao Omnis!")
 
+# SESSION STATE
 # Estado do código selecionado
 if 'codigo_selecionado' not in st.session_state:
     st.session_state.codigo_selecionado = None
@@ -21,41 +25,8 @@ if 'conferencias' not in st.session_state:
 if 'modo_edicao' not in st.session_state:
     st.session_state.modo_edicao = False
 
-# Título
-st.header("Bem-Vindo(a) ao Omnis!")
-
-# Importação dos dados
+# Importação dos dados e verificação
 importar_arquivo = st.file_uploader(label='Importe',type=['xlsx'])
-
-# Preencher planilha
-def gerar_planilha(df_limpo, conferencias):
-
-    # Copia da planilha já limpa
-    df_final = df_limpo.copy()
-
-    # Novas colunas
-    df_final['Conferente'] = pd.Series(dtype='string', index=df_final.index)
-    df_final['Data da Contagem'] = pd.Series(dtype='datetime64[ns]', index=df_final.index)
-
-    # Preenche a contagem
-    for codigo, dados in conferencias.items():
-        filtro = df_final['Códg Mestre'] == codigo
-        df_final.loc[filtro, 'Contagem'] = dados['contagem']
-        df_final.loc[filtro, 'Conferente'] = dados['conferente']
-        df_final.loc[filtro, 'Data da Contagem'] = dados['data_contagem']
-
-    return df_final
-
-# Gerar excel
-def gerar_excel(df_final):
-    arquivo = BytesIO()
-
-    with pd.ExcelWriter(arquivo, engine='openpyxl') as write:
-        df_final.to_excel(write, index=False, sheet_name='Estoque')
-
-    arquivo.seek(0)
-
-    return arquivo
 
 # Verifica se foi importado algo
 if importar_arquivo:
@@ -70,6 +41,7 @@ if importar_arquivo:
     total_itens = len(df_limpo)
     concluidos = len(st.session_state.conferencias)
 
+    # Progresso
     if total_itens > 0:
         progresso = concluidos / total_itens
     else:
@@ -82,8 +54,8 @@ if importar_arquivo:
     if concluidos == total_itens and total_itens > 0:
         st.success('Todos os itens foram conferidos!')   
         if st.button('Gerar planilha'):
-            df_final = gerar_planilha(df_limpo, st.session_state.conferencias)
-            arquivo_excel = gerar_excel(df_final)
+            df_final = funcoes.gerar_planilha(df_limpo, st.session_state.conferencias)
+            arquivo_excel = funcoes.gerar_excel(df_final)
         
             st.download_button(label='Baixar planilha', data=arquivo_excel, file_name='conferencia.xlsx', mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
@@ -184,8 +156,4 @@ if importar_arquivo:
                 
                             st.rerun()
 
-        st.divider() # linha separadora
-
-        
-
-       
+        st.divider()
