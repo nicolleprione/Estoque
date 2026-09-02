@@ -1,5 +1,13 @@
 import streamlit as st
 import pandas as pd
+from datetime import datetime
+from io import BytesIO
+
+# Data e hora atual
+data_hora = datetime.now()
+
+# Geração de colunas
+coluna1, coluna2 = st.columns([3,1], vertical_alignment='center')
 
 st.set_page_config(page_title='Omnis')
 
@@ -25,6 +33,37 @@ st.header("Bem-Vindo(a) ao Omnis!")
 # Importação dos dados
 importar_arquivo = st.file_uploader(label='Importe',type=['xlsx'])
 
+# Preencher planilha
+def gerar_planilha(df, conferencias):
+
+    # Copia da planilha já limpa
+    df_final = df_limpo.copy()
+
+    # Preenche a contagem
+    for codigo, dados in st.session_state.conferencias.items():
+        df_final.loc[df_final['Códg Mestre'] == codigo, 'Contagem'] = dados['contagem']
+
+    # Cria e prenche a coluna Conferente
+    df_final['Conferente'] = ''
+    for codigo, dados in st.session_state.conferencias.items():
+        df_final.loc[df_final['Códg Mestre'] == codigo, 'Conferente'] = dados['conferente']
+
+    # Data e hora da conferência
+    df_final['Data da Contagem'] = data_hora
+
+    return df_final
+
+# Gerar excel
+def gerar_excel(df_final):
+    arquivo = BytesIO()
+
+    with pd.ExcelWriter(arquivo, engine='openpyxl') as write:
+        df_final.to_excel(write, index=False, sheet_name='Estoque')
+
+        arquivo.seek(0)
+
+        return arquivo
+
 # Verifica se foi importado algo
 if importar_arquivo:
 
@@ -46,14 +85,18 @@ if importar_arquivo:
     st.progress(progresso)
     st.write(f'{concluidos} de {total_itens} itens conferidos.')
 
-    st.subheader('Lista de Conferência')
-
     # Botão de geração de planilha
     if concluidos == total_itens:
-        st.success('Todos os itens foram conferidos!')
+        while coluna1:
+            st.success('Todos os itens foram conferidos!')
+        with coluna2:    
+            if st.button('Gerar planilha'):
+                df_final = gerar_planilha(df_limpo, st.session_state.conferencias)
+                arquivo_excel = gerar_excel(df_final)
+        
+                st.download_button(label='Baixar planilha', data=arquivo_excel, file_name='conferencia.xlsx', mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
-        if st.button('Gerar planilha'):
-            st.write('Gerando planilha ...')
+    st.subheader('Lista de Conferência')
 
     # Separação de itens não conferidos
     itens_pendentes = df_limpo[~df_limpo['Códg Mestre'].isin(st.session_state.conferencias)]
@@ -151,3 +194,7 @@ if importar_arquivo:
                             st.rerun()
 
         st.divider() # linha separadora
+
+        
+
+       
