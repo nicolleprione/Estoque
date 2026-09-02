@@ -3,12 +3,6 @@ import pandas as pd
 from datetime import datetime
 from io import BytesIO
 
-# Data e hora atual
-data_hora = datetime.now()
-
-# Geração de colunas
-coluna1, coluna2 = st.columns([3,1], vertical_alignment='center')
-
 st.set_page_config(page_title='Omnis')
 
 # Estado do código selecionado
@@ -34,22 +28,21 @@ st.header("Bem-Vindo(a) ao Omnis!")
 importar_arquivo = st.file_uploader(label='Importe',type=['xlsx'])
 
 # Preencher planilha
-def gerar_planilha(df, conferencias):
+def gerar_planilha(df_limpo, conferencias):
 
     # Copia da planilha já limpa
     df_final = df_limpo.copy()
 
+    # Novas colunas
+    df_final['Conferente'] = pd.Series(dtype='string', index=df_final.index)
+    df_final['Data da Contagem'] = pd.Series(dtype='datetime64[ns]', index=df_final.index)
+
     # Preenche a contagem
-    for codigo, dados in st.session_state.conferencias.items():
-        df_final.loc[df_final['Códg Mestre'] == codigo, 'Contagem'] = dados['contagem']
-
-    # Cria e prenche a coluna Conferente
-    df_final['Conferente'] = ''
-    for codigo, dados in st.session_state.conferencias.items():
-        df_final.loc[df_final['Códg Mestre'] == codigo, 'Conferente'] = dados['conferente']
-
-    # Data e hora da conferência
-    df_final['Data da Contagem'] = data_hora
+    for codigo, dados in conferencias.items():
+        filtro = df_final['Códg Mestre'] == codigo
+        df_final.loc[filtro, 'Contagem'] = dados['contagem']
+        df_final.loc[filtro, 'Conferente'] = dados['conferente']
+        df_final.loc[filtro, 'Data da Contagem'] = dados['data_contagem']
 
     return df_final
 
@@ -60,9 +53,9 @@ def gerar_excel(df_final):
     with pd.ExcelWriter(arquivo, engine='openpyxl') as write:
         df_final.to_excel(write, index=False, sheet_name='Estoque')
 
-        arquivo.seek(0)
+    arquivo.seek(0)
 
-        return arquivo
+    return arquivo
 
 # Verifica se foi importado algo
 if importar_arquivo:
@@ -86,15 +79,13 @@ if importar_arquivo:
     st.write(f'{concluidos} de {total_itens} itens conferidos.')
 
     # Botão de geração de planilha
-    if concluidos == total_itens:
-        while coluna1:
-            st.success('Todos os itens foram conferidos!')
-        with coluna2:    
-            if st.button('Gerar planilha'):
-                df_final = gerar_planilha(df_limpo, st.session_state.conferencias)
-                arquivo_excel = gerar_excel(df_final)
+    if concluidos == total_itens and total_itens > 0:
+        st.success('Todos os itens foram conferidos!')   
+        if st.button('Gerar planilha'):
+            df_final = gerar_planilha(df_limpo, st.session_state.conferencias)
+            arquivo_excel = gerar_excel(df_final)
         
-                st.download_button(label='Baixar planilha', data=arquivo_excel, file_name='conferencia.xlsx', mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            st.download_button(label='Baixar planilha', data=arquivo_excel, file_name='conferencia.xlsx', mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
     st.subheader('Lista de Conferência')
 
@@ -185,7 +176,7 @@ if importar_arquivo:
                         if conferente == 'Selecione':
                             st.error('Selecione um usuário')
                         else:
-                            st.session_state.conferencias[codigo] = {'conferente':conferente, 'contagem': contagem}
+                            st.session_state.conferencias[codigo] = {'conferente':conferente, 'contagem': contagem, 'data_contagem': datetime.now()}
 
                             st.session_state.codigo_selecionado = None
                             st.session_state.codigo_confirmado = False
