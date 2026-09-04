@@ -25,11 +25,21 @@ if 'conferencias' not in st.session_state:
 if 'modo_edicao' not in st.session_state:
     st.session_state.modo_edicao = False
 
+# Estado do arquivo carregado
+if 'arquivo_carregado' not in st.session_state:
+    st.session_state.arquivo_carregado = False
+
+# Estado da planilha gerada
+if 'planilha_gerada' not in st.session_state:
+    st.session_state.planilha_gerada = False
+
 # Importação dos dados e verificação
 importar_arquivo = st.file_uploader(label='Importe',type=['xlsx'])
 
 # Verifica se foi importado algo
 if importar_arquivo:
+
+    nome_arquivo = importar_arquivo.name
 
     # Leitura dos dados
     df = pd.read_excel(importar_arquivo, dtype={'Códg Mestre': str})
@@ -39,6 +49,12 @@ if importar_arquivo:
 
     # Informações da planilha
     total_itens = len(df_limpo)
+    concluidos = len(st.session_state.conferencias)
+
+    # Carregar o progresso do arquivo
+    if st.session_state.arquivo_carregado != nome_arquivo:
+        st.session_state.conferencias = funcoes.carregar_progresso(nome_arquivo)
+        st.session_state.arquivo_carregado = nome_arquivo
     concluidos = len(st.session_state.conferencias)
 
     # Progresso
@@ -52,12 +68,27 @@ if importar_arquivo:
 
     # Botão de geração de planilha
     if concluidos == total_itens and total_itens > 0:
-        st.success('Todos os itens foram conferidos!')   
+        st.success('Todos os itens foram conferidos!') 
+
         if st.button('Gerar planilha'):
+            st.session_state.planilha_gerada = True
+        if st.session_state.planilha_gerada:
             df_final = funcoes.gerar_planilha(df_limpo, st.session_state.conferencias)
             arquivo_excel = funcoes.gerar_excel(df_final)
         
-            st.download_button(label='Baixar planilha', data=arquivo_excel, file_name='conferencia.xlsx', mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            st.download_button(label='Baixar planilha', data=arquivo_excel, file_name=f'conferencia-{importar_arquivo.name}', mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
+            if st.button('Finalizar conferência'):
+                funcoes.limpar_progresso()
+
+                st.session_state.conferencias = {}
+                st.session_state.codigo_selecionado = None
+                st.session_state.codigo_confirmado = False
+                st.session_state.modo_edicao = False
+                st.session_state.arquivo_carregado = None
+                st.session_state.planilha_gerada = False
+
+                st.rerun()
 
     st.subheader('Lista de Conferência')
 
@@ -148,7 +179,9 @@ if importar_arquivo:
                         if conferente == 'Selecione':
                             st.error('Selecione um usuário')
                         else:
-                            st.session_state.conferencias[codigo] = {'conferente':conferente, 'contagem': contagem, 'data_contagem': datetime.now()}
+                            st.session_state.conferencias[codigo] = {'conferente':conferente, 'contagem': contagem, 'data_contagem': datetime.now().strftime('%d/%m/%Y - %H:%M')}
+
+                            funcoes.salvar_progresso(importar_arquivo.name, st.session_state.conferencias)
 
                             st.session_state.codigo_selecionado = None
                             st.session_state.codigo_confirmado = False

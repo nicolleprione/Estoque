@@ -1,5 +1,6 @@
 from io import BytesIO
 import pandas as pd
+import json
 
 def gerar_planilha(df_limpo, conferencias):
 
@@ -29,3 +30,31 @@ def gerar_excel(df_final):
     arquivo.seek(0)
 
     return arquivo
+
+# Gravar o progresso
+def salvar_progresso(nome_arquivo, conferencias):
+    dados = {'arquivo': nome_arquivo, 'conferencias': conferencias}
+
+    with open('progresso.json', 'w', encoding='utf-8') as arquivo:
+        json.dump(dados, arquivo, ensure_ascii=False, indent=4, default=str)
+
+# Carregar o progesso
+def carregar_progresso(nome_arquivo):
+    try:
+        with open('progresso.json', 'r', encoding='utf-8') as arquivo:
+            dados = json.load(arquivo)
+
+        if dados['arquivo'] == nome_arquivo:
+            return dados['conferencias']
+
+        return {}
+    
+    except FileNotFoundError:
+        return{}
+
+# Limpar os dados
+def limpar_progresso():
+    dados = {'arquivo': None, 'conferencias': {}}
+
+    with open('progresso.json', 'w', encoding='utf-8') as arquivo:
+        json.dump(dados, arquivo, ensure_ascii=False, indent=4)
