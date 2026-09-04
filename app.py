@@ -33,6 +33,28 @@ if 'arquivo_carregado' not in st.session_state:
 if 'planilha_gerada' not in st.session_state:
     st.session_state.planilha_gerada = False
 
+# Diálogo de confirmação
+@st.dialog('⚠️ Finalizar Conferência')
+def confirmar_finalizacao(nome_do_arquivo):
+    st.write('Deseja limpar os dados?')
+
+    coluna01, coluna02 = st.columns(2)
+    with coluna01:
+        if st.button('SIM', type='primary', use_container_width=True):
+            funcoes.limpar_progresso()
+
+            st.session_state.conferencias = {}
+            st.session_state.codigo_selecionado = None
+            st.session_state.codigo_confirmado = False
+            st.session_state.modo_edicao = False
+            st.session_state.arquivo_carregado = None
+            st.session_state.planilha_gerada = False
+            
+            st.rerun()
+        with coluna02:
+            if st.button('NÂO', use_container_width=True):
+                st.rerun()
+
 # Importação dos dados e verificação
 importar_arquivo = st.file_uploader(label='Importe',type=['xlsx'])
 
@@ -68,27 +90,25 @@ if importar_arquivo:
 
     # Botão de geração de planilha
     if concluidos == total_itens and total_itens > 0:
-        st.success('Todos os itens foram conferidos!') 
+        st.success('Todos os itens foram conferidos!')
 
-        if st.button('Gerar planilha'):
-            st.session_state.planilha_gerada = True
+        # Colunas dos botões
+        col_gerar, col_baixar, col_finalizar = st.columns(3)
+
+        with col_gerar:
+            if st.button('Gerar Planilha'):
+                st.session_state.planilha_gerada = True
+                st.rerun()
+
         if st.session_state.planilha_gerada:
             df_final = funcoes.gerar_planilha(df_limpo, st.session_state.conferencias)
             arquivo_excel = funcoes.gerar_excel(df_final)
-        
-            st.download_button(label='Baixar planilha', data=arquivo_excel, file_name=f'conferencia-{importar_arquivo.name}', mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
-            if st.button('Finalizar conferência'):
-                funcoes.limpar_progresso()
-
-                st.session_state.conferencias = {}
-                st.session_state.codigo_selecionado = None
-                st.session_state.codigo_confirmado = False
-                st.session_state.modo_edicao = False
-                st.session_state.arquivo_carregado = None
-                st.session_state.planilha_gerada = False
-
-                st.rerun()
+            with col_baixar:
+                st.download_button(label='Baixar Planilha', data=arquivo_excel, file_name=f'conferencia-{importar_arquivo.name}', mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            with col_finalizar:
+                if st.button('Finalizar'):
+                    confirmar_finalizacao(nome_arquivo)
 
     st.subheader('Lista de Conferência')
 

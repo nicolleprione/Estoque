@@ -1,25 +1,4 @@
 {
-    "arquivo": "teste.xlsx",
-    "conferencias": {
-        "7810-4280": {
-            "conferente": "Ana Clara",
-            "contagem": 5,
-            "data_contagem": "03/09/2026 - 21:38"
-        },
-        "7410-4147": {
-            "conferente": "André",
-            "contagem": 2,
-            "data_contagem": "03/09/2026 - 21:38"
-        },
-        "7810-4409": {
-            "conferente": "Ana Clara",
-            "contagem": 5,
-            "data_contagem": "03/09/2026 - 21:38"
-        },
-        "7310-4032": {
-            "conferente": "Ana Clara",
-            "contagem": 2,
-            "data_contagem": "03/09/2026 - 21:38"
-        }
-    }
+    "arquivo": null,
+    "conferencias": {}
 }
