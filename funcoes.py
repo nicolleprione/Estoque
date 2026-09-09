@@ -1,6 +1,8 @@
 from io import BytesIO
 import pandas as pd
 import json
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 def gerar_planilha(df_limpo, conferencias):
 
@@ -9,7 +11,7 @@ def gerar_planilha(df_limpo, conferencias):
 
     # Novas colunas
     df_final['Conferente'] = pd.Series(dtype='string', index=df_final.index)
-    df_final['Data da Contagem'] = pd.Series(dtype='datetime64[ns]', index=df_final.index)
+    df_final['Data da Contagem'] = '' 
 
     # Preenche a contagem
     for codigo, dados in conferencias.items():
@@ -58,3 +60,7 @@ def limpar_progresso():
 
     with open('progresso.json', 'w', encoding='utf-8') as arquivo:
         json.dump(dados, arquivo, ensure_ascii=False, indent=4)
+
+# Horario atual
+def horario_atual():
+    return datetime.now(ZoneInfo('America/Sao_Paulo')).strftime('%d/%m/%Y - %H:%M:%S')

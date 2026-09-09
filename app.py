@@ -1,7 +1,6 @@
 # Importações
 import streamlit as st
 import pandas as pd
-from datetime import datetime
 import funcoes
 
 # Configurações
@@ -199,7 +198,7 @@ if importar_arquivo:
                         if conferente == 'Selecione':
                             st.error('Selecione um usuário')
                         else:
-                            st.session_state.conferencias[codigo] = {'conferente':conferente, 'contagem': contagem, 'data_contagem': datetime.now()}
+                            st.session_state.conferencias[codigo] = {'conferente':conferente, 'contagem': contagem, 'data_contagem': funcoes.horario_atual()}
 
                             funcoes.salvar_progresso(importar_arquivo.name, st.session_state.conferencias)
 
