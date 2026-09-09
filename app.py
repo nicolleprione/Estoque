@@ -199,7 +199,7 @@ if importar_arquivo:
                         if conferente == 'Selecione':
                             st.error('Selecione um usuário')
                         else:
-                            st.session_state.conferencias[codigo] = {'conferente':conferente, 'contagem': contagem, 'data_contagem': datetime.now().strftime('%d/%m/%Y - %H:%M')}
+                            st.session_state.conferencias[codigo] = {'conferente':conferente, 'contagem': contagem, 'data_contagem': datetime.now()}
 
                             funcoes.salvar_progresso(importar_arquivo.name, st.session_state.conferencias)
 
