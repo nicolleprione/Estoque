@@ -253,7 +253,7 @@ def aplicar_estilo():
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 14px 0 18px 0;
+            padding: 24px 0 18px 0;
             margin-bottom: 14px;
             border-bottom: 1px solid var(--omnis-border);
         }}
@@ -454,7 +454,7 @@ def exibir_cabecalho(subtitulo: str = "Conferência de estoque"):
         <div class="omnis-header">
             <div class="omnis-logo-mark">O</div>
             <div>
-                <div class="omnis-brand">OMNIS</div>
+                <div class="omnis-brand">OMNIS 2.0</div>
                 <div class="omnis-tagline">{subtitulo}</div>
             </div>
         </div>
