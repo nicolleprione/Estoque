@@ -97,7 +97,7 @@ if importar_arquivo:
         st.session_state.planilha_gerada = False
 
     # LISTA DE CONFERÊNCIA
-@st.fragment(run_every='3s')
+@st.fragment
 def atualizar_contagem():
     if st.session_state.conferencia_id is not None:
         conferencia = funcoes.localizar_ou_criar_conferencia(st.session_state.arquivo_carregado)
