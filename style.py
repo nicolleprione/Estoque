@@ -406,12 +406,13 @@ def aplicar_estilo():
             [data-testid="stMainBlockContainer"] {{
                 padding-left: 0.75rem;
                 padding-right: 0.75rem;
-                padding-top: 0.6rem;
+                padding-top: 3.5rem;
             }}
 
             .omnis-header {{
-                padding-top: 8px;
+                padding-top: 12px;
                 padding-bottom: 13px;
+                margin-top: 0;
                 margin-bottom: 10px;
             }}
 
