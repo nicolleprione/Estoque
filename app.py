@@ -2,10 +2,17 @@
 import streamlit as st
 import pandas as pd
 import funcoes
+from io import BytesIO
 
 # Configurações
 st.set_page_config(page_title='Omnis')
 st.header("Bem-Vindo(a) ao Omnis!")
+
+@st.cache_data
+def carregar_planilha(conteudo_arquivo):
+    df = pd.read_excel(BytesIO(conteudo_arquivo), dtype={'Códg Mestre':str})
+    df_limpo = df.drop_duplicates(subset='Códg Mestre')
+    return df_limpo
 
 # SESSION STATE
 
@@ -75,11 +82,8 @@ if importar_arquivo:
 
     nome_arquivo = importar_arquivo.name
 
-    # Leitura dos dados
-    df = pd.read_excel(importar_arquivo, dtype={'Códg Mestre': str})
-
-    # Remoção das duplicatas
-    df_limpo = df.drop_duplicates(subset='Códg Mestre')
+    # Leitura otimizada dos dados
+    df_limpo = carregar_planilha(importar_arquivo.getvalue())
 
     # Informações da planilha
     total_itens = len(df_limpo)
@@ -97,7 +101,6 @@ if importar_arquivo:
         st.session_state.planilha_gerada = False
 
     # LISTA DE CONFERÊNCIA
-@st.fragment
 def atualizar_contagem():
     if st.session_state.conferencia_id is not None:
         conferencia = funcoes.localizar_ou_criar_conferencia(st.session_state.arquivo_carregado)
@@ -106,6 +109,9 @@ def atualizar_contagem():
         st.session_state.conferencias = funcoes.buscar_contagens(st.session_state.conferencia_id)
 
     st.subheader('Lista de Conferência')
+
+    if st.button('Atualizar'):
+        st.rerun()
 
     # Atualização do progresso
     total_itens = len(df_limpo)
