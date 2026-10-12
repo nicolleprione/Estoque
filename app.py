@@ -11,10 +11,10 @@ import funcoes
 
 
 # CONFIGURAÇÕES
-st.set_page_config(page_title="Omnis")
+st.set_page_config(page_title="Omnis 2.0")
 st.header("Bem-Vindo(a) ao Omnis!")
 
-ITENS_POR_PAGINA = 20
+ITENS_POR_PAGINA = 15
 INTERVALO_SYNC = 30
 
 FUNCIONARIOS = ["Selecione", "Ana Clara", "André"]
@@ -72,7 +72,6 @@ padroes = {
     "arquivo_excel": None,
     "ultima_sync": 0.0,
     "pagina": 0,
-    "busca_anterior": "",
 }
 
 for chave, valor in padroes.items():
@@ -84,10 +83,7 @@ for chave, valor in padroes.items():
 def sincronizar(forcar=False):
     agora = time.time()
 
-    if (
-        not forcar
-        and agora - st.session_state.ultima_sync < INTERVALO_SYNC
-    ):
+    if (not forcar and agora - st.session_state.ultima_sync < INTERVALO_SYNC):
         return
 
     nome_arquivo = st.session_state.arquivo_carregado
@@ -95,13 +91,9 @@ def sincronizar(forcar=False):
     if not nome_arquivo:
         return
 
-    conferencia = funcoes.localizar_ou_criar_conferencia(
-        nome_arquivo
-    )
+    conferencia = funcoes.localizar_ou_criar_conferencia(nome_arquivo)
 
-    contagens = funcoes.buscar_contagens(
-        conferencia["id"]
-    )
+    contagens = funcoes.buscar_contagens(conferencia["id"])
 
     st.session_state.conferencia_id = conferencia["id"]
     st.session_state.status_conferencia = conferencia["status"]
@@ -120,8 +112,7 @@ def confirmar_finalizacao():
     coluna01, coluna02 = st.columns(2)
 
     with coluna01:
-        if st.button(
-            "SIM",
+        if st.button("SIM",
             type="primary",
             use_container_width=True,
         ):
@@ -171,8 +162,7 @@ def lista_conferencia():
         key="atualizar_conferencia",
     ):
         try:
-            with st.spinner("Atualizando dados..."):
-                sincronizar(forcar=True)
+            sincronizar(forcar=True)
 
             st.session_state.arquivo_excel = None
 
@@ -262,20 +252,11 @@ def lista_conferencia():
                         confirmar_finalizacao()
 
     # BUSCA
-    busca = st.text_input(
-        "Buscar por código ou descrição",
-        key="busca",
-    ).strip()
-
     mostrar_conferidos = st.checkbox(
         "Mostrar itens já conferidos",
         value=True,
         key="mostrar_conferidos",
     )
-
-    if busca != st.session_state.busca_anterior:
-        st.session_state.busca_anterior = busca
-        st.session_state.pagina = 0
 
     # SEPARAÇÃO DOS ITENS
     codigos = df_limpo["Códg Mestre"]
@@ -293,31 +274,6 @@ def lista_conferencia():
         )
     else:
         itens_ordenados = itens_pendentes
-
-    # FILTRO
-    if busca:
-
-        filtro_codigo = itens_ordenados[
-            "Códg Mestre"
-        ].str.contains(
-            busca,
-            case=False,
-            regex=False,
-            na=False,
-        )
-
-        filtro_descricao = itens_ordenados[
-            "Descrição"
-        ].astype(str).str.contains(
-            busca,
-            case=False,
-            regex=False,
-            na=False,
-        )
-
-        itens_ordenados = itens_ordenados.loc[
-            filtro_codigo | filtro_descricao
-        ]
 
     # PAGINAÇÃO
     quantidade_itens = len(itens_ordenados)
