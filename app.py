@@ -9,10 +9,10 @@ import streamlit as st
 
 import funcoes
 
+import style
 
-# CONFIGURAÇÕES
-st.set_page_config(page_title="Omnis 2.0")
-st.header("Bem-Vindo(a) ao Omnis!")
+style.aplicar_estilo()
+style.exibir_cabecalho()
 
 ITENS_POR_PAGINA = 15
 INTERVALO_SYNC = 30
@@ -288,10 +288,7 @@ def lista_conferencia():
         total_paginas - 1,
     )
 
-    col_ant, col_info, col_prox = st.columns(
-        [1, 2, 1],
-        vertical_alignment="center",
-    )
+    col_ant, col_prox = st.columns(2)
 
     with col_ant:
         if st.button(
@@ -310,12 +307,6 @@ def lista_conferencia():
             use_container_width=True,
         ):
             pagina += 1
-
-    with col_info:
-        st.caption(
-            f"Página {pagina + 1} de {total_paginas} "
-            f"({quantidade_itens} itens)"
-        )
 
     st.session_state.pagina = pagina
 
