@@ -101,6 +101,7 @@ if importar_arquivo:
         st.session_state.planilha_gerada = False
 
     # LISTA DE CONFERÊNCIA
+@st.fragment
 def atualizar_contagem():
     if st.session_state.conferencia_id is not None:
         conferencia = funcoes.localizar_ou_criar_conferencia(st.session_state.arquivo_carregado)
@@ -111,7 +112,7 @@ def atualizar_contagem():
     st.subheader('Lista de Conferência')
 
     if st.button('Atualizar'):
-        st.rerun()
+        st.rerun(scope="fragment")
 
     # Atualização do progresso
     total_itens = len(df_limpo)
@@ -131,7 +132,7 @@ def atualizar_contagem():
         with col_gerar:
             if st.button('Gerar Planilha'):
                 st.session_state.planilha_gerada = True
-                st.rerun()
+                st.rerun(scope="fragment")
 
         if st.session_state.planilha_gerada:
             df_final = funcoes.gerar_planilha(df_limpo, st.session_state.conferencias)
@@ -189,7 +190,7 @@ def atualizar_contagem():
                         st.session_state.codigo_confirmado = True
                         st.session_state.modo_edicao = True
 
-                        st.rerun()
+                        st.rerun(scope="fragment")
                 else:
                     st.button('Finalizado', key=f'finalizado_{codigo}', disabled=True)
 
@@ -204,7 +205,7 @@ def atualizar_contagem():
                         st.session_state.codigo_confirmado = False
                         st.session_state.modo_edicao = False
 
-                        st.rerun()
+                        st.rerun(scope="fragment")
 
                 else:
                     st.button('Finalizado', key=f'pendente_finalizado_{codigo}', disabled=True)
@@ -226,7 +227,7 @@ def atualizar_contagem():
                         if codigo_digitado == codigo:
                             st.session_state.codigo_confirmado = True
 
-                            st.rerun()
+                            st.rerun(scope="fragment")
                         else:
                             st.session_state.codigo_confirmado = False
                             st.error('Código incorreto.')
@@ -297,7 +298,7 @@ def atualizar_contagem():
                             st.session_state.modo_edicao = False
 
 
-                            st.rerun()
+                            st.rerun(scope="fragment")
         st.divider()
 if importar_arquivo:
     atualizar_contagem()
