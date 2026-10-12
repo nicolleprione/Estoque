@@ -21,6 +21,8 @@ packaging==26.3
 pandas==3.0.5
 pillow==12.3.0
 protobuf==7.36.1
+psycopg==3.3.6
+psycopg-binary==3.3.6
 pyarrow==25.0.1
 pydeck==0.9.3
 python-dateutil==2.9.0.post0
