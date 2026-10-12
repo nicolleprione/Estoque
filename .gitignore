@@ -1,5 +1,7 @@
 explicacao.md
-
 teste.xlsx
-
-__pycache__
+__pycache__/
+.streamlit/
+.venv/
+venv/
+*.pyc
