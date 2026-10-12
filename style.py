@@ -96,7 +96,7 @@ def aplicar_estilo():
 
         [data-testid="stMainBlockContainer"] {{
             max-width: 760px;
-            padding-top: 1.1rem;
+            padding-top: 2rem;
             padding-bottom: 3rem;
             padding-left: 1rem;
             padding-right: 1rem;
